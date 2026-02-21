@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PZKLWSRX');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Sabores | Menú Digital</title>
+    
+    <!-- Ícono de cubiertos en naranja -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f97316'%3E%3Cpath d='M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm4-7v13h2.5v7H20V2h-5z'/%3E%3C/svg%3E">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+        
+        :root {
+            /* Paleta Naranja para Comidas */
+            --accent: #f97316; /* orange-500 */
+            --accent-hover: #fdba74; /* orange-300 */
+            --bg-deep: #0a0a0c;
+            --bg-card: #16161a;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-deep); 
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-brand { font-family: 'Cinzel', serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* --- ESTILO ESPECIAL: NEGRO CON BORDE NARANJA --- */
+        .text-outline-orange {
+            color: black;
+            -webkit-text-stroke: 1px var(--accent);
+            text-shadow: 0 0 5px rgba(249, 115, 22, 0.3);
+            font-weight: 800; 
+        }
+        
+        .icon-outline-orange {
+            color: black;
+            -webkit-text-stroke: 2px var(--accent);
+            text-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+        }
+
+        .glass-nav {
+            background: rgba(10, 10, 12, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .category-pill {
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .category-pill.active {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            border-color: var(--accent);
+        }
+
+        /* --- LÓGICA DE TARJETAS (Adaptado para comida) --- */
+        .card-wrapper {
+            position: relative;
+            height: 22rem; /* Altura base más baja */
+            z-index: 10;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 1.25rem;
+            z-index: 10;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        /* --- IMAGEN (Ahora arriba, separada del texto) --- */
+        .img-container {
+            height: 12rem; /* Altura fija para la imagen */
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background: #0c0c0e;
+            flex-shrink: 0;
+        }
+
+        .img-container img {
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center; /* Centrado clásico para platos de comida */
+        }
+
+        /* --- CONTENIDO DE TEXTO --- */
+        .card-content {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            background: var(--bg-card);
+        }
+        
+        .hidden-details {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* --- ESTADOS INTERACTIVOS --- */
+        @media (hover: hover) {
+            .card-wrapper:hover { z-index: 50; }
+            .card-wrapper:hover .product-card {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow: 0 30px 60px -15px rgba(249, 115, 22, 0.2), 0 0 0 1px rgba(249, 115, 22, 0.3);
+                border-color: var(--accent);
+                height: auto;
+                min-height: 100%;
+            }
+            .card-wrapper:hover .img-container img { transform: scale(1.15); }
+            .card-wrapper:hover .hidden-details {
+                max-height: 300px;
+                opacity: 1;
+                margin-top: 0.75rem;
+            }
+        }
+
+        /* Estado al tocar en celular */
+        .card-wrapper.active { z-index: 60; }
+        .card-wrapper.active .product-card {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.95);
+            border-color: var(--accent);
+            height: auto;
+            min-height: 100%;
+        }
+        .card-wrapper.active .img-container img { transform: scale(1.15); }
+        .card-wrapper.active .hidden-details {
+            max-height: 400px;
+            opacity: 1;
+            margin-top: 0.75rem;
+        }
+
+        /* --- ZOOM MODAL --- */
+        #zoom-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        #zoom-modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #zoom-img {
+            max-width: 95vw;
+            max-height: 95vh;
+            object-fit: contain;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 4px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        #zoom-modal.open #zoom-img { transform: scale(1); }
+        
+        .close-zoom {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            background: rgba(255,255,255,0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .close-zoom:hover { background: var(--accent); transform: rotate(90deg); }
+
+        /* --- UI COMPONENTS --- */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 30;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+        }
+        .card-wrapper:hover .nav-btn, .card-wrapper.active .nav-btn { opacity: 1; }
+        
+        .nav-btn:hover { background: var(--accent); border-color: var(--accent); }
+        .prev-btn { left: 10px; }
+        .next-btn { right: 10px; }
+
+        .btn-action {
+            background: var(--accent);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-action:hover:not(:disabled) {
+            background: white;
+            color: var(--accent);
+        }
+        
+        #search-suggestions {
+            background: #16161a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .suggestion-item:hover {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--accent);
+        }
+
+        #scroll-up {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--accent);
+            color: white;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 80;
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+        }
+        #scroll-up.show { transform: translateY(0); opacity: 1; }
+
+        /* FOOTER ESTILOS */
+        .footer-site {
+            background-color: #0f1115; 
+        }
+        
+        .food-icon-glow {
+            box-shadow: 0 0 25px rgba(249, 115, 22, 0.4);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PZKLWSRX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    
+    <!-- ZOOM MODAL -->
+    <div id="zoom-modal" onclick="closeZoom()">
+        <button class="close-zoom">&times;</button>
+        <img id="zoom-img" src="" alt="Zoom" onclick="event.stopPropagation()">
+    </div>
+
+    <nav class="glass-nav sticky top-0 z-[100] py-4 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-4 cursor-pointer" onclick="window.location.reload()">
+                <div class="w-12 h-12 flex items-center justify-center">
+                    <i class="fas fa-utensils text-3xl icon-outline-orange"></i>
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-2xl font-brand tracking-[0.2em] text-outline-orange leading-none">SABORES</h1>
+                    <h1 class="text-xs font-brand tracking-[0.3em] text-orange-500 font-bold leading-none mt-1">COCINA DE AUTOR</h1>
+                </div>
+            </div>
+
+            <div class="relative w-full md:max-w-md">
+                <div class="flex items-center gap-3">
+                    <button id="back-btn" onclick="clearSearch()" class="hidden bg-orange-600 text-white w-10 h-10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="relative flex-grow">
+                        <input type="text" id="search-input" autocomplete="off"
+                               placeholder="Buscar hamburguesas, pizzas, bebidas..." 
+                               class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-12 text-sm focus:outline-none focus:border-orange-500 text-white transition-all focus:bg-white/10">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    </div>
+                </div>
+                <div id="search-suggestions" class="absolute top-full left-0 right-0 mt-2 z-[110]"></div>
+            </div>
+
+            <button onclick="toggleCart()" class="relative px-8 py-3 text-white bg-orange-600 rounded-full flex items-center space-x-3 shadow-lg hover:shadow-orange-600/30 transition-shadow">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-count" class="bg-white text-orange-600 text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                <span class="text-xs font-bold uppercase tracking-widest hidden sm:inline">Mi Pedido</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-12 flex-grow w-full">
+        <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <h2 class="text-3xl font-brand text-white">Nuestro Menú</h2>
+            <div id="category-filters" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"></div>
+        </div>
+
+        <div id="loading-state" class="flex flex-col items-center justify-center py-20">
+            <div class="w-12 h-12 border-4 border-orange-600/20 border-t-orange-600 rounded-full animate-spin mb-4"></div>
+            <span class="text-xs uppercase tracking-[0.4em] text-slate-500 font-bold">Preparando menú</span>
+        </div>
+
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 pb-12"></div>
+    </main>
+
+    <div id="scroll-up" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+
+    <!-- FOOTER RESTAURANTE -->
+    <footer id="footer" class="footer-site mt-20 py-20 px-6 border-t border-orange-900/30">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center space-x-4 mb-8">
+                    <div class="w-14 h-14 flex items-center justify-center rounded-full bg-black food-icon-glow">
+                        <i class="fas fa-utensils text-2xl icon-outline-orange"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-xl font-brand tracking-[0.2em] text-outline-orange leading-none">SABORES</h3>
+                        <h3 class="text-xs font-brand tracking-[0.2em] text-orange-500 font-bold leading-none mt-2">COCINA DE AUTOR</h3>
+                    </div>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed max-w-md border-l-2 border-orange-900/50 pl-4">
+                    Ingredientes frescos, recetas únicas y mucho amor en cada plato. Disfrutá de la mejor experiencia gastronómica desde la comodidad de tu casa.
+                </p>
+            </div>
+            
+            <div>
+                <h4 class="text-xs uppercase tracking-[0.3em] text-orange-500 font-bold mb-6">Información</h4>
+                <ul class="space-y-4 text-sm text-slate-400">
+                    <li class="flex items-start space-x-3">
+                        <i class="fas fa-clock text-orange-600 mt-1"></i>
+                        <div>
+                            <p class="text-white font-semibold mb-1">Horarios de Atención</p>
+                            <p>Martes a Domingo: 19:30 a 23:30 hs</p>
+                            <p class="text-orange-500 font-medium text-xs mt-1">Lunes Cerrado</p>
+                        </div>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-motorcycle text-orange-600"></i>
+                        <span>Delivery propio & Take Away</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-xs uppercase tracking-[0.3em] text-orange-500 font-bold mb-6">Contacto</h4>
+                <ul class="space-y-4 text-sm text-slate-400 mb-6">
+                    <li class="flex items-center space-x-3">
+                        <i class="fas fa-map-marker-alt text-orange-600"></i>
+                        <a href="https://www.google.com/maps" target="_blank" class="hover:text-orange-500 transition-colors">Av. Principal 1234, Ciudad</a>
+                    </li>
+                    <li class="flex items-center space-x-3 cursor-pointer hover:text-orange-500 transition-colors" onclick="sendDirectWhatsApp()">
+                        <i class="fab fa-whatsapp text-orange-600"></i>
+                        <span>WhatsApp: +54 9 11 4446-0693</span>
+                    </li>
+                </ul>
+                <div class="flex space-x-4">
+                    <a href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:bg-orange-600 hover:text-white transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(249,115,22,0.5)]">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" target="_blank" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:bg-orange-600 hover:text-white transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(249,115,22,0.5)]">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest">© 2026 SABORES. TODOS LOS DERECHOS RESERVADOS.</p>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest">SISTEMA CREADO CON <i class="fas fa-fire text-orange-600 mx-1"></i> PARA GASTRONOMÍA.</p>
+        </div>
+    </footer>
+
+    <!-- CART -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] hidden" onclick="toggleCart()"></div>
+    <aside id="cart-sidebar" class="fixed right-0 top-0 h-full w-full max-w-md bg-[#0d0d10] z-[120] translate-x-full transition-transform duration-500 border-l border-white/5 flex flex-col shadow-2xl">
+        <div class="p-8 border-b border-white/5 flex justify-between items-center">
+            <h2 class="text-2xl font-brand text-white">TU PEDIDO</h2>
+            <button onclick="toggleCart()" class="text-slate-500 text-3xl hover:text-white transition-colors">&times;</button>
+        </div>
+        <div id="cart-content" class="flex-grow overflow-y-auto p-8 space-y-6"></div>
+        <div class="p-8 border-t border-white/5 bg-[#121215]">
+            <div class="flex justify-between items-end mb-8">
+                <span class="text-slate-500 text-xs uppercase tracking-widest">Total a Pagar</span>
+                <span id="cart-total" class="text-3xl font-bold text-orange-500">$ 0,00</span>
+            </div>
+            <button onclick="sendToWhatsApp()" class="btn-action w-full py-5 rounded-xl text-white font-bold uppercase tracking-widest text-sm shadow-lg shadow-orange-900/20">
+                <i class="fab fa-whatsapp mr-2"></i> Confirmar por WhatsApp
+            </button>
+        </div>
+    </aside>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-orange-600 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 z-[9999] flex items-center gap-2">
+        <i class="fas fa-check-circle"></i>
+        <span class="text-sm font-bold tracking-wider">¡Plato copiado!</span>
+    </div>
+
+    <script>
+        const WHATSAPP_PHONE = "5491144460693"; 
+        const SHEET_ID = "1JU9lCrtnzWOHN9B9ni_MSGco2fZvQXJEHnTaDH5ZwTc";
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+        const DEFAULT_IMG = "https://placehold.co/400x300/16161a/f97316?text=Sabores";
+        
+        let products = [];
+        let categories = [];
+        let currentCategory = 'Todos';
+        let cart = JSON.parse(localStorage.getItem('sabores_cart_v1')) || [];
+
+        window.onload = loadStock;
+
+        async function loadStock() {
+            try {
+                const response = await fetch(CSV_URL);
+                const data = await response.text();
+                const rows = data.split('\n').slice(1);
+                
+                products = rows.map((row, index) => {
+                    const parts = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    const clean = (str) => str ? str.replace(/^"|"$/g, '').trim() : "";
+                    
+                    let imgRaw = clean(parts[4]);
+                    let images = imgRaw.includes(';') ? imgRaw.split(';').map(u => u.trim()) : [imgRaw || ""];
+                    images = images.filter(link => link.length > 0);
+                    if (images.length === 0) images = [DEFAULT_IMG];
+                    
+                    let subRaw = clean(parts[7]); 
+                    let subCategories = subRaw ? subRaw.split(';').map(s => s.trim().toLowerCase()) : [];
+
+                    return {
+                        id: index,
+                        nombre: clean(parts[0]),
+                        descripcion: clean(parts[1]),
+                        stock: parseInt(clean(parts[2])) || 0,
+                        precio: parseFloat(clean(parts[3]).replace(/[^0-9,.]/g, '').replace(',', '.')) || 0,
+                        imagenes: images,
+                        currentImgIndex: 0,
+                        infoCorta: clean(parts[5]),
+                        categoria: clean(parts[6]) || "Otros",
+                        tags: subCategories
+                    };
+                }).filter(p => p.nombre !== "");
+
+                categories = ['Todos', ...new Set(products.map(p => p.categoria))];
+                renderCategories();
+                displayProducts(products);
+                document.getElementById('loading-state').style.display = 'none';
+                updateCartUI();
+
+                // Manejo de enlace compartido
+                const params = new URLSearchParams(window.location.search);
+                const sharedId = params.get('p');
+                if (sharedId !== null) {
+                    setTimeout(() => {
+                        const targetCard = document.getElementById(`wrapper-${sharedId}`);
+                        if (targetCard) {
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            toggleActive(targetCard);
+                        }
+                    }, 500);
+                }
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading-state').innerHTML = `<p class="text-orange-500 font-bold">Error cargando el menú. Verifica la conexión.</p>`;
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('category-filters');
+            container.innerHTML = categories.map(cat => `
+                <button onclick="filterByCategory('${cat}')" class="category-pill px-6 py-2 rounded-full border border-white/10 text-[11px] font-bold uppercase tracking-widest ${currentCategory === cat ? 'active' : 'text-slate-500 hover:text-white hover:border-white/30'}">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function filterByCategory(cat) {
+            currentCategory = cat;
+            renderCategories();
+            performSearch();
+        }
+
+        function displayProducts(items) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = items.map(p => {
+                const hasMultiple = p.imagenes.length > 1;
+                const infoBadgeHtml = p.infoCorta 
+                    ? `<span class="inline-block px-3 py-1 mb-2 text-[10px] font-bold text-white bg-orange-600 rounded-full tracking-wider shadow-lg shadow-orange-600/20">${p.infoCorta}</span>` 
+                    : '';
+                
+                const currentImgSrc = p.imagenes[p.currentImgIndex];
+
+                return `
+                <div class="card-wrapper group" id="wrapper-${p.id}" onclick="toggleActive(this)">
+                    <div class="product-card">
+                        
+                        <div class="img-container">
+                            ${hasMultiple ? `
+                                <button onclick="changeImage(${p.id}, -1, event)" class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+                                <button onclick="changeImage(${p.id}, 1, event)" class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+                            ` : ''}
+                            <img id="img-${p.id}" 
+                                 src="${currentImgSrc}" 
+                                 alt="${p.nombre}" 
+                                 onclick="openZoom('${currentImgSrc}', event)"
+                                 onerror="this.onerror=null; this.src='${DEFAULT_IMG}'">
+                        </div>
+
+                        <div class="card-content">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-white font-bold text-base leading-tight pr-2">${p.nombre}</h3>
+                                <p class="text-orange-500 font-bold text-lg whitespace-nowrap">$${p.precio.toLocaleString('es-AR')}</p>
+                            </div>
+                            
+                            <!-- Preview de descripción (opcional si quieres que se vea algo siempre) -->
+                            <p class="text-xs text-slate-400 line-clamp-2 mb-2 group-hover:hidden active-hide">${p.descripcion}</p>
+
+                            <div class="hidden-details">
+                                <div class="w-full h-px bg-white/10 mb-3 mt-1"></div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex-grow">
+                                        ${infoBadgeHtml}
+                                    </div>
+                                    <button onclick="shareProduct(${p.id}, event)" class="w-8 h-8 rounded-full bg-white/5 hover:bg-orange-600 flex items-center justify-center text-white transition-colors pointer-events-auto shrink-0" title="Compartir plato">
+                                        <i class="fas fa-share-alt text-[10px]"></i>
+                                    </button>
+                                </div>
+                                <p class="text-sm text-slate-300 leading-relaxed font-light mb-5">${p.descripcion}</p>
+                                
+                                <button onclick="addToCart(${p.id}, event)" ${p.stock <= 0 ? 'disabled' : ''} 
+                                    class="btn-action mt-auto w-full py-3.5 rounded-lg text-white font-bold text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed border border-orange-600">
+                                    <i class="fas fa-plus mr-1"></i> ${p.stock <= 0 ? 'Agotado' : 'Agregar al Pedido'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function changeImage(id, delta, e) {
+            if (e) e.stopPropagation();
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            
+            p.currentImgIndex = (p.currentImgIndex + delta + p.imagenes.length) % p.imagenes.length;
+            const imgElement = document.getElementById(`img-${id}`);
+            if (imgElement) {
+                imgElement.src = p.imagenes[p.currentImgIndex];
+                imgElement.setAttribute('onclick', `openZoom('${p.imagenes[p.currentImgIndex]}', event)`);
+            }
+        }
+        
+        function openZoom(src, e) {
+            if (window.innerWidth <= 768) return; 
+            if (e) e.stopPropagation(); 
+            const modal = document.getElementById('zoom-modal');
+            const img = document.getElementById('zoom-img');
+            img.src = src;
+            modal.classList.add('open');
+        }
+        function closeZoom() {
+            document.getElementById('zoom-modal').classList.remove('open');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => toast.classList.add('opacity-0'), 3000);
+        }
+
+        async function shareProduct(id, e) {
+            if (e) e.stopPropagation();
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            
+            const url = new URL(window.location.href);
+            url.searchParams.set('p', id);
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: `Sabores - ${p.nombre}`,
+                        text: `¡Mirá este plato riquísimo! ${p.nombre}`,
+                        url: url.toString()
+                    });
+                } catch (err) {
+                    console.log('Compartir cancelado o error:', err);
+                }
+            } else {
+                navigator.clipboard.writeText(url.toString());
+                showToast('¡Plato copiado!');
+            }
+        }
+
+        function toggleActive(el) {
+            const wasActive = el.classList.contains('active');
+            document.querySelectorAll('.card-wrapper.active').forEach(c => {
+                c.classList.remove('active');
+                // Mostrar preview de vuelta al cerrar
+                const preview = c.querySelector('.active-hide');
+                if(preview) preview.style.display = 'block';
+            });
+            
+            if (!wasActive) {
+                el.classList.add('active');
+                // Ocultar preview de texto cuando está expandido para que no se duplique
+                const preview = el.querySelector('.active-hide');
+                if(preview) preview.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.card-wrapper')) {
+                document.querySelectorAll('.card-wrapper.active').forEach(c => {
+                    c.classList.remove('active');
+                    const preview = c.querySelector('.active-hide');
+                    if(preview) preview.style.display = 'block';
+                });
+            }
+            if (!e.target.closest('#search-input')) {
+                document.getElementById('search-suggestions').style.display = 'none';
+            }
+        });
+
+        function performSearch() {
+            const term = document.getElementById('search-input').value.toLowerCase().trim();
+            const filtered = products.filter(p => {
+                const matchesCat = currentCategory === 'Todos' || p.categoria === currentCategory;
+                const matchesText = p.nombre.toLowerCase().includes(term) || 
+                                   p.descripcion.toLowerCase().includes(term) ||
+                                   p.tags.some(t => t.includes(term));
+                return matchesCat && matchesText;
+            });
+            displayProducts(filtered);
+            showSuggestions(term);
+        }
+
+        function showSuggestions(term) {
+            const div = document.getElementById('search-suggestions');
+            if (term.length < 2) { div.style.display = 'none'; return; }
+
+            let hints = [];
+            products.forEach(p => {
+                if (p.nombre.toLowerCase().includes(term)) hints.push({text: p.nombre});
+                p.tags.forEach(t => {
+                    if (t.includes(term)) hints.push({text: t});
+                });
+            });
+
+            const uniqueHints = Array.from(new Set(hints.map(h => h.text))).slice(0, 6);
+            
+            if (uniqueHints.length > 0) {
+                div.innerHTML = uniqueHints.map(h => `<div class="suggestion-item text-xs" onclick="selectSuggestion('${h}')"><i class="fas fa-utensils mr-2 opacity-30"></i>${h}</div>`).join('');
+                div.style.display = 'block';
+            } else {
+                div.style.display = 'none';
+            }
+        }
+
+        function selectSuggestion(val) {
+            document.getElementById('search-input').value = val;
+            document.getElementById('search-suggestions').style.display = 'none';
+            performSearch();
+        }
+
+        document.getElementById('search-input').addEventListener('input', performSearch);
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            performSearch();
+        }
+
+        function addToCart(id, e) {
+            e.stopPropagation();
+            const p = products.find(x => x.id === id);
+            const exist = cart.find(x => x.id === id);
+            if (exist) exist.qty++; else cart.push({...p, qty: 1});
+            saveCart();
+            updateCartUI();
+        }
+
+        function saveCart() { localStorage.setItem('sabores_cart_v1', JSON.stringify(cart)); }
+
+        function updateCartUI() {
+            const count = document.getElementById('cart-count');
+            const content = document.getElementById('cart-content');
+            const totalDisplay = document.getElementById('cart-total');
+            
+            const totalQty = cart.reduce((acc, i) => acc + i.qty, 0);
+            count.innerText = totalQty;
+            
+            let total = 0;
+            content.innerHTML = cart.map(item => {
+                total += item.precio * item.qty;
+                return `
+                    <div class="flex items-center gap-4 bg-white/5 p-3 rounded-lg border border-white/5">
+                        <img src="${item.imagenes[0]}" class="w-16 h-16 object-cover rounded" onerror="this.src='${DEFAULT_IMG}'">
+                        <div class="flex-grow">
+                            <h4 class="text-white text-sm font-bold leading-tight">${item.nombre}</h4>
+                            <p class="text-orange-400 text-xs mt-1 font-semibold">${item.qty} un. x $${item.precio.toLocaleString()}</p>
+                        </div>
+                        <button onclick="removeCart(${item.id})" class="text-slate-500 hover:text-red-500 transition-colors px-2"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            }).join('');
+            totalDisplay.innerText = `$ ${total.toLocaleString('es-AR')}`;
+        }
+
+        function removeCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            saveCart();
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const side = document.getElementById('cart-sidebar');
+            const over = document.getElementById('cart-overlay');
+            side.classList.toggle('translate-x-full');
+            over.classList.toggle('hidden');
+        }
+
+        function sendDirectWhatsApp() { window.open(`https://wa.me/${WHATSAPP_PHONE}`, '_blank'); }
+
+        function sendToWhatsApp() {
+            if (cart.length === 0) return;
+            let total = 0;
+            let msg = "*🍽️ SABORES - NUEVO PEDIDO*%0A%0A";
+            cart.forEach(i => {
+                msg += `🔸 ${i.qty}x *${i.nombre}* ($${(i.precio * i.qty).toLocaleString('es-AR')})%0A`;
+                total += (i.precio * i.qty);
+            });
+            msg += `%0A💵 *TOTAL: $${total.toLocaleString('es-AR')}*%0A%0A_¿Me confirmas la demora?_`;
+            window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${msg}`, '_blank');
+        }
+
+        window.onscroll = () => {
+            const btn = document.getElementById('scroll-up');
+            if (window.scrollY > 500) btn.classList.add('show'); else btn.classList.remove('show');
+        };
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") closeZoom();
+        });
+    </script>
+</body>
+</html>
